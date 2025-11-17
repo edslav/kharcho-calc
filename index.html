@@ -21,7 +21,6 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     html, body { height: 100%; }
 
     body {
@@ -58,44 +57,21 @@
       .card { padding: 26px 26px 22px; }
     }
 
-    /* HEADER TOP (badge only now) */
-    .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .badge-strip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-      background: var(--accent-soft);
-      border-radius: 999px;
-      padding: 5px 11px;
-    }
-
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 0 4px rgba(194, 59, 34, 0.2);
-    }
-
+    /* HEADER ROW: icon + title + toggle on one line */
     .header-row {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
       gap: 14px;
-      margin-bottom: 10px;
-      margin-top: 4px;
-      flex-wrap: nowrap;
+      min-width: 0;
+      flex: 1;
     }
 
     .logo-pill {
@@ -109,6 +85,7 @@
       justify-content: center;
       position: relative;
       overflow: hidden;
+      flex-shrink: 0;
     }
 
     .logo-pill::before {
@@ -140,22 +117,19 @@
     }
 
     .header-text-main h1 {
-      font-size: 22px;
-      line-height: 1.18;
+      font-size: 20px;
+      line-height: 1.2;
       letter-spacing: -0.02em;
-      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .header-subtitle {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    /* THEME TOGGLE (same style, just in its own row below header) */
+    /* THEME TOGGLE */
     .theme-toggle-wrap {
+      flex-shrink: 0;
       display: flex;
       justify-content: flex-end;
-      margin: 4px 0 14px 0;
     }
 
     .theme-toggle {
@@ -500,14 +474,6 @@
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
     }
 
-    body.dark-theme .badge-strip {
-      background: rgba(194, 59, 34, 0.25);
-    }
-
-    body.dark-theme .logo-pill {
-      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.7);
-    }
-
     body.dark-theme .volume-input-wrap {
       background: #241c24;
       border-color: var(--border-subtle);
@@ -550,37 +516,29 @@
   <div class="app-shell">
     <div class="card-frame">
       <div class="card">
-        <div class="header-top">
-          <div class="badge-strip">
-            <span class="badge-dot"></span>
-            Суп харчо · Калькулятор
-          </div>
-        </div>
 
+        <!-- ONE LINE: icon + title + toggle -->
         <div class="header-row">
-          <div class="logo-pill" aria-hidden="true">
-            <div class="logo-icon"></div>
-          </div>
-          <div class="header-text-main">
-            <h1>Харчо под вашу кастрюлю</h1>
-            <div class="header-subtitle">
-              Введите объём готового супа — получите идеальные пропорции и пошаговый рецепт.
+          <div class="header-left">
+            <div class="logo-pill" aria-hidden="true">
+              <div class="logo-icon"></div>
+            </div>
+            <div class="header-text-main">
+              <h1>Харчо под вашу кастрюлю</h1>
             </div>
           </div>
-        </div>
-
-        <!-- theme toggle moved here, same look -->
-        <div class="theme-toggle-wrap">
-          <button
-            class="theme-toggle"
-            id="themeToggle"
-            type="button"
-            aria-label="Переключить тему"
-          >
-            <span class="theme-option theme-option-left">🌙</span>
-            <span class="theme-thumb"></span>
-            <span class="theme-option theme-option-right">☀️</span>
-          </button>
+          <div class="theme-toggle-wrap">
+            <button
+              class="theme-toggle"
+              id="themeToggle"
+              type="button"
+              aria-label="Переключить тему"
+            >
+              <span class="theme-option theme-option-left">🌙</span>
+              <span class="theme-thumb"></span>
+              <span class="theme-option theme-option-right">☀️</span>
+            </button>
+          </div>
         </div>
 
         <div class="section">
