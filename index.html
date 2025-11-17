@@ -58,10 +58,11 @@
       .card { padding: 26px 26px 22px; }
     }
 
+    /* HEADER TOP (badge only now) */
     .header-top {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 8px;
       margin-bottom: 10px;
       flex-wrap: wrap;
@@ -88,83 +89,13 @@
       box-shadow: 0 0 0 4px rgba(194, 59, 34, 0.2);
     }
 
-    .theme-toggle-wrap {
-      display: flex;
-      justify-content: flex-end;
-      flex: 1;
-    }
-
-    .theme-toggle {
-      position: relative;
-      border: none;
-      border-radius: 999px;
-      padding: 4px 10px;
-      width: 92px;
-      height: 32px;
-      background: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-      display: inline-flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.12s ease;
-    }
-
-    .theme-toggle:active {
-      transform: translateY(1px);
-      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.22);
-    }
-
-    .theme-thumb {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 40px;
-      height: 24px;
-      border-radius: 999px;
-      background: #ffffff;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-      transform: translateX(40px); /* по умолчанию — светлая тема, справа (☀️) */
-      transition: transform 0.25s ease;
-    }
-
-    .theme-option {
-      position: relative;
-      z-index: 1;
-      font-size: 15px;
-      line-height: 1;
-      opacity: 0.55;
-      transition: opacity 0.25s ease;
-    }
-
-    .theme-toggle.is-dark .theme-thumb {
-      transform: translateX(0); /* тёмная тема — слева (🌙) */
-    }
-
-    .theme-toggle.is-dark .theme-option-left {
-      opacity: 1;
-    }
-
-    .theme-toggle.is-dark .theme-option-right {
-      opacity: 0.4;
-    }
-
-    .theme-toggle:not(.is-dark) .theme-option-left {
-      opacity: 0.4;
-    }
-
-    .theme-toggle:not(.is-dark) .theme-option-right {
-      opacity: 1;
-    }
-
     .header-row {
       display: flex;
       align-items: center;
       gap: 14px;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       margin-top: 4px;
+      flex-wrap: nowrap;
     }
 
     .logo-pill {
@@ -220,6 +151,69 @@
       color: var(--muted);
     }
 
+    /* THEME TOGGLE (same style, just in its own row below header) */
+    .theme-toggle-wrap {
+      display: flex;
+      justify-content: flex-end;
+      margin: 4px 0 14px 0;
+    }
+
+    .theme-toggle {
+      position: relative;
+      border: none;
+      border-radius: 999px;
+      padding: 4px 10px;
+      width: 92px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.12s ease;
+    }
+
+    .theme-toggle:active {
+      transform: translateY(1px);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.22);
+    }
+
+    .theme-thumb {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 40px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      transform: translateX(40px); /* светлая тема (☀️ справа) */
+      transition: transform 0.25s ease;
+    }
+
+    .theme-option {
+      position: relative;
+      z-index: 1;
+      font-size: 15px;
+      line-height: 1;
+      opacity: 0.55;
+      transition: opacity 0.25s ease;
+    }
+
+    .theme-toggle.is-dark .theme-thumb {
+      transform: translateX(0); /* тёмная тема (🌙 слева) */
+    }
+
+    .theme-toggle.is-dark .theme-option-left { opacity: 1; }
+    .theme-toggle.is-dark .theme-option-right { opacity: 0.4; }
+
+    .theme-toggle:not(.is-dark) .theme-option-left { opacity: 0.4; }
+    .theme-toggle:not(.is-dark) .theme-option-right { opacity: 1; }
+
+    /* MAIN SECTION */
     .section { margin-bottom: 16px; }
 
     .section-note {
@@ -322,6 +316,7 @@
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.26);
     }
 
+    /* INGREDIENTS CARD */
     .ingredients-card {
       border-radius: 20px;
       background: #fdf7f3;
@@ -393,6 +388,7 @@
       line-height: 1.4;
     }
 
+    /* ACTIONS */
     .actions-row {
       display: flex;
       flex-wrap: wrap;
@@ -439,6 +435,7 @@
       text-align: center;
     }
 
+    /* STEPS PANEL */
     .steps-panel {
       margin-top: 14px;
       border-radius: 20px;
@@ -490,17 +487,13 @@
 
     .step-text + .step-text { margin-top: 2px; }
 
-    /* ТЁМНАЯ ТЕМА */
+    /* DARK THEME */
     body.dark-theme {
       --bg-gradient: radial-gradient(circle at top, #17151f 0, #15121b 32%, #100f16 100%);
       --card-bg: rgba(25, 22, 32, 0.96);
       --text-main: #f6f2ee;
       --muted: #a79ca1;
       --border-subtle: #3a3139;
-    }
-
-    body.dark-theme {
-      color: var(--text-main);
     }
 
     body.dark-theme .card {
@@ -562,18 +555,6 @@
             <span class="badge-dot"></span>
             Суп харчо · Калькулятор
           </div>
-          <div class="theme-toggle-wrap">
-            <button
-              class="theme-toggle"
-              id="themeToggle"
-              type="button"
-              aria-label="Переключить тему"
-            >
-              <span class="theme-option theme-option-left">🌙</span>
-              <span class="theme-thumb"></span>
-              <span class="theme-option theme-option-right">☀️</span>
-            </button>
-          </div>
         </div>
 
         <div class="header-row">
@@ -586,6 +567,20 @@
               Введите объём готового супа — получите идеальные пропорции и пошаговый рецепт.
             </div>
           </div>
+        </div>
+
+        <!-- theme toggle moved here, same look -->
+        <div class="theme-toggle-wrap">
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            type="button"
+            aria-label="Переключить тему"
+          >
+            <span class="theme-option theme-option-left">🌙</span>
+            <span class="theme-thumb"></span>
+            <span class="theme-option theme-option-right">☀️</span>
+          </button>
         </div>
 
         <div class="section">
@@ -664,7 +659,7 @@
 
           <div class="step-block">
             <div class="step-heading">1. Подготовка мяса и лука</div>
-            <div class="step-text">• Нарежьте говядину кусочками, примерно 2-3 см.</div>
+            <div class="step-text">• Нарежьте говядину крупными кусочками, примерно 3–4 см.</div>
             <div class="step-text">• Лук очистите и нарежьте мелким кубиком.</div>
             <div class="step-text">• Чеснок пока только очистите — измельчать будем ближе к концу.</div>
           </div>
@@ -839,7 +834,6 @@
       themeToggle.classList.toggle("is-dark", isDark);
     }
 
-    // Учитываем системную тему при первом открытии
     const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     setTheme(prefersDark);
 
