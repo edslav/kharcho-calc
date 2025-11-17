@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Калькулятор супа харчо</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at top, #fdf7f3 0, #f3e6de 26%, #e6e2f3 65%, #d8dde9 100%);
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --accent: #c23b22;
+      --accent-soft: rgba(194, 59, 34, 0.12);
+      --accent-strong: #ff6a3c;
+      --text-main: #1f130f;
+      --muted: #8a7e78;
+      --border-subtle: #e6d7cd;
+      --radius-xl: 26px;
+      --shadow-soft: 0 22px 50px rgba(15, 8, 2, 0.22);
+      --shadow-soft-small: 0 10px 25px rgba(0, 0, 0, 0.12);
+      --transition-fast: 0.18s ease-out;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background: var(--bg-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .app-shell { width: 100%; max-width: 560px; margin: 0 auto; }
+
+    .card-frame {
+      padding: 2px;
+      border-radius: calc(var(--radius-xl) + 4px);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(194, 59, 34, 0.32));
+      box-shadow: var(--shadow-soft);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-xl);
+      padding: 22px 18px 18px;
+      backdrop-filter: blur(26px);
+      transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    @media (min-width: 480px) {
+      .card { padding: 26px 26px 22px; }
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .badge-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      background: var(--accent-soft);
+      border-radius: 999px;
+      padding: 5px 11px;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(194, 59, 34, 0.2);
+    }
+
+    .theme-toggle-wrap {
+      display: flex;
+      justify-content: flex-end;
+      flex: 1;
+    }
+
+    .theme-toggle {
+      position: relative;
+      border: none;
+      border-radius: 999px;
+      padding: 4px 10px;
+      width: 92px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.12s ease;
+    }
+
+    .theme-toggle:active {
+      transform: translateY(1px);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.22);
+    }
+
+    .theme-thumb {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 40px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      transform: translateX(40px); /* по умолчанию — светлая тема, справа (☀️) */
+      transition: transform 0.25s ease;
+    }
+
+    .theme-option {
+      position: relative;
+      z-index: 1;
+      font-size: 15px;
+      line-height: 1;
+      opacity: 0.55;
+      transition: opacity 0.25s ease;
+    }
+
+    .theme-toggle.is-dark .theme-thumb {
+      transform: translateX(0); /* тёмная тема — слева (🌙) */
+    }
+
+    .theme-toggle.is-dark .theme-option-left {
+      opacity: 1;
+    }
+
+    .theme-toggle.is-dark .theme-option-right {
+      opacity: 0.4;
+    }
+
+    .theme-toggle:not(.is-dark) .theme-option-left {
+      opacity: 0.4;
+    }
+
+    .theme-toggle:not(.is-dark) .theme-option-right {
+      opacity: 1;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      margin-top: 4px;
+    }
+
+    .logo-pill {
+      width: 46px;
+      height: 46px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 30% 25%, #ffe7da 0, #ffb894 30%, #ff8a5a 72%, #e05833 100%);
+      box-shadow: var(--shadow-soft-small);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-pill::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.78), transparent 45%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 9px;
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-icon::before,
+    .logo-icon::after {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .header-text-main h1 {
+      font-size: 22px;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .header-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .section { margin-bottom: 16px; }
+
+    .section-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .volume-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .volume-label {
+      font-size: 14px;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .volume-input-wrap {
+      flex: 1;
+      min-width: 140px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f7f1ec;
+      border-radius: 999px;
+      padding: 4px 10px 4px 12px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .volume-input-wrap input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 16px;
+      width: 100%;
+      text-align: right;
+      color: var(--text-main);
+      -moz-appearance: textfield;
+    }
+
+    .volume-input-wrap input::-webkit-outer-spin-button,
+    .volume-input-wrap input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .volume-unit {
+      font-size: 13px;
+      color: var(--muted);
+      padding-left: 4px;
+    }
+
+    .volume-helper {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .slider-wrap { margin-bottom: 0; }
+
+    .slider-wrap input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 999px;
+      background: #eee0d9;
+      outline: none;
+      position: relative;
+    }
+
+    .slider-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 2px solid var(--accent-strong);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.26);
+      margin-top: -9px;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .slider-wrap input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1.05);
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .slider-wrap input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 2px solid var(--accent-strong);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.26);
+    }
+
+    .ingredients-card {
+      border-radius: 20px;
+      background: #fdf7f3;
+      border: 1px solid var(--border-subtle);
+      padding: 14px 12px 10px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    @media (min-width: 480px) {
+      .ingredients-card { padding: 16px 16px 12px; }
+    }
+
+    .ingredients-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+
+    .ingredients-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .servings-info {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .ingredients-list {
+      margin-top: 4px;
+      border-top: 1px dashed #e1cabe;
+      padding-top: 8px;
+      transition: border-color 0.3s ease;
+    }
+
+    .ingredient-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 3px 0;
+      font-size: 14px;
+    }
+
+    .ingredient-name { flex: 1.4; }
+
+    .ingredient-dot {
+      flex: 0 0 10px;
+      height: 1px;
+      border-bottom: 1px dotted #d1b8ac;
+      margin-top: 12px;
+      transition: border-color 0.3s ease;
+    }
+
+    .ingredient-amount {
+      flex: 0 0 auto;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .ingredient-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn-primary {
+      flex: 1;
+      min-width: 160px;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(145deg, #ff7b48, #e44520);
+      color: #fff;
+      box-shadow: 0 9px 18px rgba(197, 71, 34, 0.45);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 5px 12px rgba(197, 71, 34, 0.4);
+      filter: brightness(0.97);
+    }
+
+    .btn-primary-icon {
+      font-size: 16px;
+      line-height: 1;
+      margin-top: -1px;
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .steps-panel {
+      margin-top: 14px;
+      border-radius: 20px;
+      background: #fbfafc;
+      border: 1px solid #e1d8f3;
+      padding: 14px 12px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+    }
+
+    @media (min-width: 480px) {
+      .steps-panel { padding: 16px 16px; }
+    }
+
+    .steps-panel.open {
+      max-height: 900px;
+      opacity: 1;
+    }
+
+    .steps-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .steps-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .step-block { margin-bottom: 8px; }
+    .step-block:last-child { margin-bottom: 0; }
+
+    .step-heading {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .step-text {
+      font-size: 12px;
+      line-height: 1.4;
+      color: #4d4038;
+    }
+
+    .step-text + .step-text { margin-top: 2px; }
+
+    /* ТЁМНАЯ ТЕМА */
+    body.dark-theme {
+      --bg-gradient: radial-gradient(circle at top, #17151f 0, #15121b 32%, #100f16 100%);
+      --card-bg: rgba(25, 22, 32, 0.96);
+      --text-main: #f6f2ee;
+      --muted: #a79ca1;
+      --border-subtle: #3a3139;
+    }
+
+    body.dark-theme {
+      color: var(--text-main);
+    }
+
+    body.dark-theme .card {
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    body.dark-theme .badge-strip {
+      background: rgba(194, 59, 34, 0.25);
+    }
+
+    body.dark-theme .logo-pill {
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.7);
+    }
+
+    body.dark-theme .volume-input-wrap {
+      background: #241c24;
+      border-color: var(--border-subtle);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    body.dark-theme .slider-wrap input[type="range"] {
+      background: #3a3033;
+    }
+
+    body.dark-theme .ingredients-card {
+      background: #241c26;
+      border-color: #3c313a;
+    }
+
+    body.dark-theme .ingredients-list {
+      border-top-color: #4a3b45;
+    }
+
+    body.dark-theme .ingredient-dot {
+      border-bottom-color: #4a3b45;
+    }
+
+    body.dark-theme .steps-panel {
+      background: #201f28;
+      border-color: #3b3750;
+    }
+
+    body.dark-theme .theme-toggle {
+      background: rgba(10, 8, 14, 0.9);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+    }
+
+    body.dark-theme .theme-thumb {
+      background: #272034;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="card-frame">
+      <div class="card">
+        <div class="header-top">
+          <div class="badge-strip">
+            <span class="badge-dot"></span>
+            Суп харчо · Калькулятор
+          </div>
+          <div class="theme-toggle-wrap">
+            <button
+              class="theme-toggle"
+              id="themeToggle"
+              type="button"
+              aria-label="Переключить тему"
+            >
+              <span class="theme-option theme-option-left">🌙</span>
+              <span class="theme-thumb"></span>
+              <span class="theme-option theme-option-right">☀️</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="header-row">
+          <div class="logo-pill" aria-hidden="true">
+            <div class="logo-icon"></div>
+          </div>
+          <div class="header-text-main">
+            <h1>Харчо под вашу кастрюлю</h1>
+            <div class="header-subtitle">
+              Введите объём готового супа — получите идеальные пропорции и пошаговый рецепт.
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-note">
+            Выберите объём готового супа.
+          </div>
+
+          <div class="volume-row">
+            <div class="volume-label">Объём супа:</div>
+            <div class="volume-input-wrap">
+              <input
+                type="number"
+                id="volumeInput"
+                min="2"
+                max="10"
+                step="0.1"
+                value="5.7"
+              />
+              <span class="volume-unit">л</span>
+            </div>
+          </div>
+
+          <div class="volume-helper">
+            Доступный диапазон: от 2 до 10 литров готового супа.
+          </div>
+
+          <div class="slider-wrap">
+            <input
+              type="range"
+              id="volumeSlider"
+              min="2"
+              max="10"
+              step="0.1"
+              value="5.7"
+            />
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="ingredients-card">
+            <div class="ingredients-header">
+              <div class="ingredients-title">Ингредиенты</div>
+              <div class="servings-info">
+                Примерно на <span id="servings">6</span> порций
+              </div>
+            </div>
+
+            <div class="ingredients-list" id="ingredientsList">
+              <!-- JS вставит строки -->
+            </div>
+
+            <div class="ingredient-note">
+              Чеснок и лавровый лист указаны диапазоном (минимум–максимум),
+              ориентируйтесь по своему вкусу.
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="actions-row">
+            <button class="btn-primary" type="button" id="toggleStepsBtn">
+              <span class="btn-primary-icon" id="toggleIcon">▾</span>
+              <span id="toggleText">Показать пошаговый рецепт</span>
+            </button>
+          </div>
+          <div class="footer-note">
+            Классический вариант харчо с говядиной, рисом и ткемали.
+          </div>
+        </div>
+
+        <div class="steps-panel" id="stepsPanel">
+          <div class="steps-title">Пошаговый рецепт харчо</div>
+          <div class="steps-sub">
+            Ингредиенты выше уже пересчитаны под выбранный объём. Ниже — общая схема приготовления.
+          </div>
+
+          <div class="step-block">
+            <div class="step-heading">1. Подготовка мяса и лука</div>
+            <div class="step-text">• Нарежьте говядину кусочками, примерно 2-3 см.</div>
+            <div class="step-text">• Лук очистите и нарежьте мелким кубиком.</div>
+            <div class="step-text">• Чеснок пока только очистите — измельчать будем ближе к концу.</div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-heading">2. Варка бульона</div>
+            <div class="step-text">• Положите говядину в подходящую по размеру кастрюлю.</div>
+            <div class="step-text">• Залейте холодной водой до нужного уровня (оставьте место под рис и зажарку).</div>
+            <div class="step-text">• Доведите до кипения на сильном огне, снимите всю пену.</div>
+            <div class="step-text">• Убавьте огонь до слабого и варите 1.5–2 часа, пока мясо не станет мягким.</div>
+            <div class="step-text">• В середине варки можно слегка подсолить бульон.</div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-heading">3. Зажарка (лук + томат)</div>
+            <div class="step-text">• На сковороде разогрейте немного растительного масла.</div>
+            <div class="step-text">• Обжарьте лук до мягкости и лёгкой золотистости.</div>
+            <div class="step-text">• Добавьте томатную пасту, хорошо перемешайте и жарьте ещё 2–3 минуты.</div>
+            <div class="step-text">• Добавьте несколько половников бульона из кастрюли, прогрейте 3–5 минут.</div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-heading">4. Подготовка риса</div>
+            <div class="step-text">• Промойте рис в холодной воде 3–4 раза, пока вода не станет почти прозрачной.</div>
+            <div class="step-text">• Оставьте рис в сите или дуршлаге, чтобы стекла лишняя вода.</div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-heading">5. Соединение: рис, зажарка, специи</div>
+            <div class="step-text">• Убедитесь, что мясо в бульоне уже мягкое.</div>
+            <div class="step-text">• Всыпьте промытый рис в кастрюлю, аккуратно перемешайте.</div>
+            <div class="step-text">• Варите рис в бульоне около 10–15 минут на умеренном огне.</div>
+            <div class="step-text">• Добавьте в кастрюлю зажарку из сковороды и снова перемешайте.</div>
+            <div class="step-text">• Влейте ткемали, ещё раз перемешайте.</div>
+            <div class="step-text">• Засыпьте хмели-сунели, молотый кориандр и положите лавровый лист.</div>
+            <div class="step-text">• Добавьте острый перец по вкусу (молотый или стручок).</div>
+            <div class="step-text">• Оставьте суп кипеть ещё 10–15 минут на слабом огне.</div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-heading">6. Чеснок и зелень</div>
+            <div class="step-text">• Мелко порубите чеснок или пропустите через чеснокодавку.</div>
+            <div class="step-text">• Кинзу и петрушку нарежьте мелко, часть оставьте для подачи.</div>
+            <div class="step-text">• За 5 минут до окончания варки добавьте чеснок и большую часть зелени.</div>
+            <div class="step-text">• Попробуйте суп на соль и кислоту; при необходимости добавьте ещё соли или ткемали.</div>
+            <div class="step-text">• Выключите огонь и дайте харчо настояться под крышкой 15–20 минут.</div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-heading">7. Подача</div>
+            <div class="step-text">• Разлейте суп по глубоким тарелкам.</div>
+            <div class="step-text">• Посыпьте сверху свежей зеленью.</div>
+            <div class="step-text">• Подавайте с лавашем или хорошим свежим хлебом.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE_VOLUME = 5.7;
+    const BASE_SERVINGS = 6;
+
+    const baseRecipe = [
+      { name: "Говядина", unit: "кг", type: "single", value: 1.5 },
+      { name: "Рис", unit: "г", type: "single", value: 220 },
+      { name: "Лук", unit: "шт", type: "singleInt", value: 4 },
+      { name: "Чеснок", unit: "зубч.", type: "range", min: 7, max: 9 },
+      { name: "Томатная паста", unit: "ст. л.", type: "single", value: 4 },
+      { name: "Ткемали", unit: "ст. л.", type: "single", value: 6 },
+      { name: "Хмели-сунели", unit: "ст. л.", type: "single", value: 2.5 },
+      { name: "Кориандр молотый", unit: "ч. л.", type: "single", value: 2.5 },
+      { name: "Лавровый лист", unit: "шт", type: "range", min: 5, max: 6 },
+      { name: "Кинза", unit: "пучок", type: "singleInt", value: 1 },
+      { name: "Петрушка", unit: "пучок", type: "singleInt", value: 1 }
+    ];
+
+    const ingredientsListEl = document.getElementById("ingredientsList");
+    const volumeInputEl = document.getElementById("volumeInput");
+    const volumeSliderEl = document.getElementById("volumeSlider");
+    const servingsEl = document.getElementById("servings");
+
+    const toggleStepsBtn = document.getElementById("toggleStepsBtn");
+    const stepsPanel = document.getElementById("stepsPanel");
+    const toggleText = document.getElementById("toggleText");
+    const toggleIcon = document.getElementById("toggleIcon");
+
+    const themeToggle = document.getElementById("themeToggle");
+    const bodyEl = document.body;
+
+    function formatNumber(value, unit) {
+      if (unit === "г") {
+        return Math.round(value) + " " + unit;
+      }
+      if (unit === "кг") {
+        let v = Math.round(value * 100) / 100;
+        return v.toString().replace(/\.00$/, "").replace(/(\.\d)0$/, "$1") + " " + unit;
+      }
+      if (unit === "ст. л." || unit === "ч. л.") {
+        let v = Math.round(value * 10) / 10;
+        return v.toString().replace(/\.0$/, "") + " " + unit;
+      }
+      return Math.round(value) + " " + unit;
+    }
+
+    function renderIngredients(volume) {
+      const factor = volume / BASE_VOLUME;
+      const servings = Math.round(BASE_SERVINGS * factor);
+      servingsEl.textContent = servings;
+
+      ingredientsListEl.innerHTML = "";
+
+      baseRecipe.forEach((item) => {
+        let textAmount = "";
+
+        if (item.type === "single") {
+          const scaled = item.value * factor;
+          textAmount = formatNumber(scaled, item.unit);
+        } else if (item.type === "singleInt") {
+          const scaled = Math.max(1, Math.round(item.value * factor));
+          textAmount = scaled + " " + item.unit;
+        } else if (item.type === "range") {
+          const minScaled = Math.max(1, Math.round(item.min * factor));
+          const maxScaled = Math.max(minScaled, Math.round(item.max * factor));
+          if (minScaled === maxScaled) {
+            textAmount = minScaled + " " + item.unit;
+          } else {
+            textAmount = minScaled + "–" + maxScaled + " " + item.unit;
+          }
+        }
+
+        const row = document.createElement("div");
+        row.className = "ingredient-row";
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "ingredient-name";
+        nameEl.textContent = item.name;
+
+        const dotsEl = document.createElement("div");
+        dotsEl.className = "ingredient-dot";
+
+        const amountEl = document.createElement("div");
+        amountEl.className = "ingredient-amount";
+        amountEl.textContent = textAmount;
+
+        row.appendChild(nameEl);
+        row.appendChild(dotsEl);
+        row.appendChild(amountEl);
+
+        ingredientsListEl.appendChild(row);
+      });
+    }
+
+    function syncFromInput() {
+      let value = parseFloat((volumeInputEl.value || "").toString().replace(",", "."));
+      if (isNaN(value)) value = BASE_VOLUME;
+      if (value < 2) value = 2;
+      if (value > 10) value = 10;
+      volumeInputEl.value = value.toFixed(1).replace(".0", "");
+      volumeSliderEl.value = value;
+      renderIngredients(value);
+    }
+
+    function syncFromSlider() {
+      const value = parseFloat(volumeSliderEl.value);
+      volumeInputEl.value = value.toFixed(1).replace(".0", "");
+      renderIngredients(value);
+    }
+
+    function setTheme(isDark) {
+      bodyEl.classList.toggle("dark-theme", isDark);
+      themeToggle.classList.toggle("is-dark", isDark);
+    }
+
+    // Учитываем системную тему при первом открытии
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setTheme(prefersDark);
+
+    volumeInputEl.addEventListener("input", syncFromInput);
+    volumeSliderEl.addEventListener("input", syncFromSlider);
+
+    toggleStepsBtn.addEventListener("click", () => {
+      const isOpen = stepsPanel.classList.toggle("open");
+      if (isOpen) {
+        toggleText.textContent = "Скрыть пошаговый рецепт";
+        toggleIcon.textContent = "▴";
+      } else {
+        toggleText.textContent = "Показать пошаговый рецепт";
+        toggleIcon.textContent = "▾";
+      }
+    });
+
+    themeToggle.addEventListener("click", () => {
+      const isDark = !bodyEl.classList.contains("dark-theme");
+      setTheme(isDark);
+    });
+
+    renderIngredients(BASE_VOLUME);
+  </script>
+</body>
+</html>
